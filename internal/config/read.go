@@ -7,7 +7,7 @@ import (
 )
 
 func Read() (Config, error) {
-	file, err := getConfigFilePath()
+	file, err := GetConfigFilePath()
 	if err != nil {
 		return Config{}, fmt.Errorf("%w", err)
 	}
@@ -24,11 +24,11 @@ func Read() (Config, error) {
 	return cfg, nil
 }
 
-func getConfigFilePath() (string, error) {
+func GetConfigFilePath() (string, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return "", fmt.Errorf("home directory not found")
 	}
 	filePath := fmt.Sprintf("%s/%s", homeDir, configFilename)
-	return filePath,nil
+	return filePath, nil
 }
