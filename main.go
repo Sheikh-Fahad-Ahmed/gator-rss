@@ -7,10 +7,12 @@ import (
 )
 
 func main() {
-	fmt.Println("Hello World!")
 	cfg, err := config.Read()
 	if err != nil {
 		fmt.Println("error Read function")
 	}
+	fmt.Println(cfg)
+
+	cfg.SetUser("Fahad")
 	fmt.Println(cfg)
 }
