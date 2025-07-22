@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"os"
 )
 
 type command struct {
@@ -11,17 +12,18 @@ type command struct {
 }
 
 type commands struct {
-	commandsMap map[string]func(*State, command) error
+	commandsMap map[string]func(*state, command) error
 }
 
-func handlerLogin(s *State, cmd command) error {
+func handlerLogin(s *state, cmd command) error {
 	if len(cmd.arguments) == 0 {
-		return errors.New("no command arguments")
+		fmt.Println("a username is required")
+		os.Exit(1)
 	}
 	if len(cmd.arguments) > 1 {
 		return errors.New("login command takes only one argument")
 	}
-	if err := s.Config.SetUser(cmd.arguments[0]); err != nil {
+	if err := s.config.SetUser(cmd.arguments[0]); err != nil {
 		return err
 	}
 
@@ -29,7 +31,7 @@ func handlerLogin(s *State, cmd command) error {
 	return nil
 }
 
-func (c *commands) run(s *State, cmd command) error {
+func (c *commands) run(s *state, cmd command) error {
 	f, ok := c.commandsMap[cmd.name]
 	if !ok {
 		return errors.New("command function not found")
@@ -42,9 +44,9 @@ func (c *commands) run(s *State, cmd command) error {
 	return nil
 }
 
-func (c *commands) register(name string, f func(s *State, cmd command) error) {
+func (c *commands) register(name string, f func(s *state, cmd command) error) {
 	if c.commandsMap == nil {
-		c.commandsMap = make(map[string]func(*State, command) error)
+		c.commandsMap = make(map[string]func(*state, command) error)
 	}
 	_, exists := c.commandsMap[name]
 	if exists {
