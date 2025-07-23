@@ -1,10 +1,13 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"os"
 
 	"github.com/Sheikh-Fahad-Ahmed/gator-rss/internal/config"
+	"github.com/Sheikh-Fahad-Ahmed/gator-rss/internal/database"
+	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -14,16 +17,24 @@ func main() {
 	}
 
 	cmd := command{
-		name: os.Args[1],
+		name:      os.Args[1],
 		arguments: os.Args[2:],
 	}
-	
+
 	cfg, err := config.Read()
 	if err != nil {
 		fmt.Println("error Read function")
 	}
 
+	db, err := sql.Open("postgres", cfg.Db_url)
+	if err != nil {
+		fmt.Println("Error while opening database: ", err)
+	}
+
+	dbQueries := database.New(db)
+
 	s := &state{
+		db:     dbQueries,
 		config: &cfg,
 	}
 
@@ -32,7 +43,8 @@ func main() {
 	}
 
 	cmds.register("login", handlerLogin)
-	if err := cmds.run(s,cmd); err != nil {
+	cmds.register("register", handlerRegister)
+	if err := cmds.run(s, cmd); err != nil {
 		fmt.Println(err)
 	}
 }
