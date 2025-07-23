@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -20,14 +21,21 @@ func handlerLogin(s *state, cmd command) error {
 		fmt.Println("a username is required")
 		os.Exit(1)
 	}
+
 	if len(cmd.arguments) > 1 {
 		return errors.New("login command takes only one argument")
 	}
+
+	if _, err := s.db.GetUser(context.Background(), cmd.arguments[0]); err != nil {
+		fmt.Println(cmd.arguments[0], " does not exist...")
+		os.Exit(1)
+	}
+
 	if err := s.config.SetUser(cmd.arguments[0]); err != nil {
 		return err
 	}
 
-	fmt.Println("A User has been set..")
+	fmt.Printf("\n%s has logged in...", cmd.arguments[0])
 	return nil
 }
 
