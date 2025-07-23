@@ -27,7 +27,7 @@ func handlerLogin(s *state, cmd command) error {
 	}
 
 	if _, err := s.db.GetUser(context.Background(), cmd.arguments[0]); err != nil {
-		fmt.Println(cmd.arguments[0], " does not exist...")
+		fmt.Println(cmd.arguments[0], " does not exist.")
 		os.Exit(1)
 	}
 
@@ -56,6 +56,18 @@ func handlerRegister(s *state, cmd command) error {
 		return err
 	}
 	fmt.Println(cmd.arguments[0], "has been registered as a user.")
+	return nil
+}
+
+func handlerReset(s *state, cmd command) error {
+	if len(cmd.arguments) > 0 {
+		return errors.New("reset command does not take any arguments")
+	}
+	err := s.db.DeleteAll(context.Background())
+	if err != nil {
+		return err
+	}
+	fmt.Println("All data has been wiped.")
 	return nil
 }
 
