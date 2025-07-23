@@ -18,7 +18,7 @@ func helperCreateUser(s *state, cmd command) error {
 
 	_, err := s.db.GetUser(context.Background(), name)
 	if err == nil {
-		fmt.Println("User already exists...")
+		fmt.Printf("%s already exists.\n", name)
 		os.Exit(1)
 	}
 
