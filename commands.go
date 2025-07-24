@@ -35,7 +35,7 @@ func handlerLogin(s *state, cmd command) error {
 		return err
 	}
 
-	fmt.Printf("\n%s has logged in...", cmd.arguments[0])
+	fmt.Printf("\n%s has logged in.\n", cmd.arguments[0])
 	return nil
 }
 
@@ -68,6 +68,23 @@ func handlerReset(s *state, cmd command) error {
 		return err
 	}
 	fmt.Println("All data has been wiped.")
+	return nil
+}
+
+func handlerUsers(s *state, cmd command) error {
+	if len(cmd.arguments) > 0 {
+		return errors.New("users command does not take any arguments")
+	}
+	users, err := s.db.GetUsers(context.Background())
+	if err != nil {
+		return err
+	}
+	for _, name := range(users) {
+		fmt.Printf("\n* %s",name)
+		if name == s.config.Current_user_name {
+			fmt.Printf(" (current)")
+		}
+	}
 	return nil
 }
 
