@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func fetchFeed(context context.Context, feedURL string) (*RSSFeed, error) {
+func FetchFeed(context context.Context, feedURL string) (*RSSFeed, error) {
 	req, err := http.NewRequestWithContext(context, "GET", feedURL, nil)
 	if err != nil {
 		return nil, err

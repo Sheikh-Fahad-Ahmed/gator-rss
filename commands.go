@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"os"
+
+	"github.com/Sheikh-Fahad-Ahmed/gator-rss/internal/rss/api"
 )
 
 type command struct {
@@ -86,6 +88,20 @@ func handlerUsers(s *state, cmd command) error {
 		}
 	}
 	return nil
+}
+
+func handlerAgg(s *state, cmd command) error {
+	if len(cmd.arguments) > 0 {
+		return errors.New("agg command does not take any arguments")
+	}
+	feedURL := "https://www.wagslane.dev/index.xml"
+
+	feed, err := api.FetchFeed(context.Background(), feedURL)
+	if err != nil {
+		return err
+	}
+	fmt.Println(feed)
+	return nil 
 }
 
 func (c *commands) run(s *state, cmd command) error {

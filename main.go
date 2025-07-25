@@ -46,6 +46,7 @@ func main() {
 	cmds.register("register", handlerRegister)
 	cmds.register("reset", handlerReset)
 	cmds.register("users", handlerUsers)
+	cmds.register("agg", handlerAgg)
 	if err := cmds.run(s, cmd); err != nil {
 		fmt.Println(err)
 	}
