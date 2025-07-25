@@ -35,3 +35,30 @@ func helperCreateUser(s *state, cmd command) error {
 	}
 	return nil
 }
+
+func helperCreatedFeed(s *state, cmd command) (*database.Feed, error) {
+	id := uuid.New()
+	currentTime := time.Now()
+	feedName := cmd.arguments[0]
+	feedURL := cmd.arguments[1]
+	username := s.config.Current_user_name
+	userInfo, err := s.db.GetUser(context.Background(), username)
+	if err != nil {
+		return nil, err
+	}
+
+	params := database.CreateFeedParams{
+		ID: id,
+		CreatedAt: currentTime,
+		UpdatedAt: currentTime,
+		Name: feedName,
+		Url: feedURL,
+		UserID: userInfo.ID,
+	}
+
+	feed,err := s.db.CreateFeed(context.Background(),params)
+	if err != nil {
+		return nil, err
+	}
+	return &feed, nil
+}

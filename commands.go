@@ -104,6 +104,18 @@ func handlerAgg(s *state, cmd command) error {
 	return nil 
 }
 
+func handlerAddFeed(s *state, cmd command) error {
+	if len(cmd.arguments) != 2 {
+		return errors.New("addFeed command takes 2 arguments: name url")
+	}
+	feed, err := helperCreatedFeed(s,cmd)
+	if err != nil {
+		return err
+	}
+	fmt.Println(feed.ID, feed.Name, feed.CreatedAt, feed.UpdatedAt, feed.Url, feed.UserID)
+	return nil
+}
+
 func (c *commands) run(s *state, cmd command) error {
 	f, ok := c.commandsMap[cmd.name]
 	if !ok {
