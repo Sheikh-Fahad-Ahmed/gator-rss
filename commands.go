@@ -81,8 +81,8 @@ func handlerUsers(s *state, cmd command) error {
 	if err != nil {
 		return err
 	}
-	for _, name := range(users) {
-		fmt.Printf("\n* %s",name)
+	for _, name := range users {
+		fmt.Printf("\n* %s", name)
 		if name == s.config.Current_user_name {
 			fmt.Printf(" (current)")
 		}
@@ -101,14 +101,15 @@ func handlerAgg(s *state, cmd command) error {
 		return err
 	}
 	fmt.Println(feed)
-	return nil 
+	return nil
 }
 
 func handlerAddFeed(s *state, cmd command) error {
 	if len(cmd.arguments) != 2 {
-		return errors.New("addFeed command takes 2 arguments: name url")
+		fmt.Println("addFeed command takes 2 arguments: name url")
+		os.Exit(1)
 	}
-	feed, err := helperCreatedFeed(s,cmd)
+	feed, err := helperCreatedFeed(s, cmd)
 	if err != nil {
 		return err
 	}
