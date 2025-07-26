@@ -117,6 +117,22 @@ func handlerAddFeed(s *state, cmd command) error {
 	return nil
 }
 
+func handlerFeeds(s *state, cmd command) error {
+	if len(cmd.arguments) > 0 {
+		fmt.Println("feeds command does not take any arguments.")
+		os.Exit(1)
+	}
+
+	feeds, err := s.db.GetFeeds(context.Background())
+	if err != nil {
+		return err
+	}
+	for i, item := range(feeds) {
+		fmt.Printf("\n%d. %s, %s",(i + 1), item.Name, item.Username)
+	}
+	return nil
+}
+
 func (c *commands) run(s *state, cmd command) error {
 	f, ok := c.commandsMap[cmd.name]
 	if !ok {
