@@ -60,6 +60,19 @@ func helperCreatedFeed(s *state, cmd command) (*database.Feed, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	feedFollowParams := database.CreateFeedFollowParams{
+		ID: uuid.New(),
+		CreatedAt: currentTime,
+		UpdatedAt: currentTime,
+		UserID: userInfo.ID,
+		FeedID: feed.ID,
+	}
+	_, err = s.db.CreateFeedFollow(context.Background(), feedFollowParams)
+	if err != nil {
+		return nil, err
+	}
+
 	return &feed, nil
 }
 
