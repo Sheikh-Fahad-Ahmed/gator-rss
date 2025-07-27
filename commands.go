@@ -127,8 +127,8 @@ func handlerFeeds(s *state, cmd command) error {
 	if err != nil {
 		return err
 	}
-	for i, item := range(feeds) {
-		fmt.Printf("\n%d. %s, %s",(i + 1), item.Name, item.Username)
+	for i, item := range feeds {
+		fmt.Printf("\n%d. %s, %s", (i + 1), item.Name, item.Username)
 	}
 	return nil
 }
@@ -143,7 +143,28 @@ func handlerFollow(s *state, cmd command) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("\n%s	%s\n",feedFollowRecord.FeedName, feedFollowRecord.UserName)
+	fmt.Printf("\n%s	%s\n", feedFollowRecord.FeedName, feedFollowRecord.UserName)
+	return nil
+}
+
+func handlerFollowing(s *state, cmd command) error {
+	if len(cmd.arguments) != 0 {
+		fmt.Println("following command does not take any argument")
+		os.Exit(1)
+	}
+
+	user, err := s.db.GetUser(context.Background(), s.config.Current_user_name)
+	if err != nil {
+		return err
+	}
+	followingFeeds, err := s.db.GetFeedFollowForUser(context.Background(), user.ID)
+	if err != nil {
+		return err
+	}
+
+	for i, item := range followingFeeds {
+		fmt.Printf("\n%d. %s, %s", (i+1), item.FeedName, item.UserName)
+	}
 	return nil
 }
 

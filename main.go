@@ -50,6 +50,7 @@ func main() {
 	cmds.register("addfeed", handlerAddFeed)
 	cmds.register("feeds", handlerFeeds)
 	cmds.register("follow", handlerFollow)
+	cmds.register("following", handlerFollowing)
 	if err := cmds.run(s, cmd); err != nil {
 		fmt.Println(err)
 	}
