@@ -133,6 +133,20 @@ func handlerFeeds(s *state, cmd command) error {
 	return nil
 }
 
+func handlerFollow(s *state, cmd command) error {
+	if len(cmd.arguments) != 1 {
+		fmt.Println("follow command only take one argument: url")
+		os.Exit(1)
+	}
+
+	feedFollowRecord, err := helperCreateFeedFollow(s, cmd)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("\n%s	%s\n",feedFollowRecord.FeedName, feedFollowRecord.UserName)
+	return nil
+}
+
 func (c *commands) run(s *state, cmd command) error {
 	f, ok := c.commandsMap[cmd.name]
 	if !ok {

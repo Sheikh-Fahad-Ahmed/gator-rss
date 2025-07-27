@@ -62,3 +62,29 @@ func helperCreatedFeed(s *state, cmd command) (*database.Feed, error) {
 	}
 	return &feed, nil
 }
+
+func helperCreateFeedFollow(s *state, cmd command) (*database.CreateFeedFollowRow, error) {
+	id := uuid.New()
+	currentTime := time.Now()
+	user_id, err := s.db.GetUser(context.Background(), s.config.Current_user_name)
+	if err != nil {
+		return nil, err
+	}
+	feed, err := s.db.GetFeedByURL(context.Background(), cmd.arguments[0])
+	if err != nil {
+		return nil, err
+	}
+	params := database.CreateFeedFollowParams{
+		ID: id,
+		CreatedAt: currentTime,
+		UpdatedAt: currentTime,
+		UserID: user_id.ID,
+		FeedID: feed.ID,
+	}
+
+	feedFollow, err := s.db.CreateFeedFollow(context.Background(),params)
+	if err != nil {
+		return nil, err
+	}
+	return &feedFollow, nil
+}
