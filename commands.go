@@ -175,6 +175,19 @@ func handlerFollowing(s *state, cmd command, user database.User) error {
 	return nil
 }
 
+func handlerUnfollow(s *state, cmd command, user database.User) error {
+	if len(cmd.arguments) != 1 {
+		fmt.Println("unfollow command takes 1 argument: url")
+		os.Exit(1)
+	}
+
+	if err := helperDeleteFeedFollow(s, cmd, user); err != nil {
+		return err
+	}
+	return nil
+
+}
+
 func (c *commands) run(s *state, cmd command) error {
 	f, ok := c.commandsMap[cmd.name]
 	if !ok {

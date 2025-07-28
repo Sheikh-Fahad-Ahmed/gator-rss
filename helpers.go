@@ -92,3 +92,17 @@ func helperCreateFeedFollow(s *state, cmd command, user database.User) (*databas
 	}
 	return &feedFollow, nil
 }
+
+func helperDeleteFeedFollow(s *state, cmd command, user database.User) error {
+	feed, err := s.db.GetFeedByURL(context.Background(), cmd.arguments[0])
+	if err != nil {
+		return err
+	}
+	params := database.DeleteFeedFollowParams {
+		FeedID: feed.ID,
+		UserID: user.ID,
+	}
+	
+	err = s.db.DeleteFeedFollow(context.Background(), params)
+	return err
+}
