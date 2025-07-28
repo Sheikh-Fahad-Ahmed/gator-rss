@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/Sheikh-Fahad-Ahmed/gator-rss/internal/database"
 	"github.com/Sheikh-Fahad-Ahmed/gator-rss/internal/rss/api"
 )
 
@@ -16,6 +17,16 @@ type command struct {
 
 type commands struct {
 	commandsMap map[string]func(*state, command) error
+}
+
+func middlewareLoggedIn(handler func(s *state, cmd command, user database.User) error) func(s *state, cmd command) error {
+	return func(s *state, cmd command) error {
+		user, err := s.db.GetUser(context.Background(),s.config.Current_user_name)
+		if err != nil {
+			return err
+		}
+		return handler(s,cmd,user)
+	}
 }
 
 func handlerLogin(s *state, cmd command) error {
@@ -104,12 +115,12 @@ func handlerAgg(s *state, cmd command) error {
 	return nil
 }
 
-func handlerAddFeed(s *state, cmd command) error {
+func handlerAddFeed(s *state, cmd command, user database.User) error {
 	if len(cmd.arguments) != 2 {
 		fmt.Println("addFeed command takes 2 arguments: name url")
 		os.Exit(1)
 	}
-	feed, err := helperCreatedFeed(s, cmd)
+	feed, err := helperCreatedFeed(s, cmd, user)
 	if err != nil {
 		return err
 	}
@@ -133,13 +144,13 @@ func handlerFeeds(s *state, cmd command) error {
 	return nil
 }
 
-func handlerFollow(s *state, cmd command) error {
+func handlerFollow(s *state, cmd command, user database.User) error {
 	if len(cmd.arguments) != 1 {
 		fmt.Println("follow command only take one argument: url")
 		os.Exit(1)
 	}
 
-	feedFollowRecord, err := helperCreateFeedFollow(s, cmd)
+	feedFollowRecord, err := helperCreateFeedFollow(s, cmd, user)
 	if err != nil {
 		return err
 	}
@@ -147,16 +158,12 @@ func handlerFollow(s *state, cmd command) error {
 	return nil
 }
 
-func handlerFollowing(s *state, cmd command) error {
+func handlerFollowing(s *state, cmd command, user database.User) error {
 	if len(cmd.arguments) != 0 {
 		fmt.Println("following command does not take any argument")
 		os.Exit(1)
 	}
 
-	user, err := s.db.GetUser(context.Background(), s.config.Current_user_name)
-	if err != nil {
-		return err
-	}
 	followingFeeds, err := s.db.GetFeedFollowForUser(context.Background(), user.ID)
 	if err != nil {
 		return err
