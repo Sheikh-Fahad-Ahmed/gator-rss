@@ -4,10 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"os"
+	"time"
 
 	"github.com/Sheikh-Fahad-Ahmed/gator-rss/internal/database"
-	"github.com/Sheikh-Fahad-Ahmed/gator-rss/internal/rss/api"
 )
 
 type command struct {
@@ -102,17 +103,20 @@ func handlerUsers(s *state, cmd command) error {
 }
 
 func handlerAgg(s *state, cmd command) error {
-	if len(cmd.arguments) > 0 {
-		return errors.New("agg command does not take any arguments")
+	if len(cmd.arguments) != 1 {
+		return errors.New("agg command takes only 1 argument: time eg. 1m, 1h etc")
 	}
-	feedURL := "https://www.wagslane.dev/index.xml"
 
-	feed, err := api.FetchFeed(context.Background(), feedURL)
+	timeBetweenRequests, err := time.ParseDuration(cmd.arguments[0])
 	if err != nil {
 		return err
 	}
-	fmt.Println(feed)
-	return nil
+	log.Printf("\nCollecting feeds every %v\n",timeBetweenRequests)
+
+	ticker := time.NewTicker(timeBetweenRequests)
+	for ; ; <-ticker.C {
+		FetchAndProcessFeeds(s)
+	}
 }
 
 func handlerAddFeed(s *state, cmd command, user database.User) error {
