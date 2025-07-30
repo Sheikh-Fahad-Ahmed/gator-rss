@@ -12,7 +12,7 @@ A command-line RSS aggregator built in Go, featuring user authentication, feed m
   - List followed feeds (`following`), browse posts (`browse`).
 - **Aggregation**: Aggregate RSS feeds and store posts in the database (`agg`).
 - **Goose & SQLC**:
-  - Database migrations managed with [Goose](https://github.com/pressly/goose).
+  - Database migrations are placed in the `sql/schema` folder and managed with [Goose](https://github.com/pressly/goose).
   - Type-safe queries auto-generated with [SQLC](https://github.com/kyleconroy/sqlc).
 - **Session & Config**: Uses a JSON config file named `.gatorconfig.json` stored in the user’s home directory to save the database URL and currently logged-in user.
 
@@ -38,22 +38,31 @@ Main tables:
 
 1. Clone the repository:
 
-git clone https://github.com/youruser/gator-rss.git
-cd gator-rss
-text
+   ```bash
+   git clone https://github.com/youruser/gator-rss.git
+   cd gator-rss
+   ```
 
-2. Set up the database and apply migrations:
+2. Create the database using the Postgres CLI tool `psql`:
 
-Create the database (change credentials as needed)
+   ```bash
+   # You may need to enter your Postgres password
+   psql -U your_pg_user -c 'CREATE DATABASE gator;'
+   ```
 
-createdb gator_rss
-goose -dir db/migrations postgres "postgres://user:pass@localhost:5432/gator_rss?sslmode=disable" up
-text
+   Replace `your_pg_user` with your actual Postgres username.
 
-3. Generate Go code from queries:
+3. Apply database migrations:
 
-sqlc generate
-text
+   ```bash
+   goose -dir sql/schema postgres "postgres://user:pass@localhost:5432/gator?sslmode=disable" up
+   ```
+
+4. Generate Go code from queries:
+
+   ```bash
+   sqlc generate
+   ```
 
 ### Configuration
 
@@ -61,16 +70,17 @@ text
 
 - This config file stores:
 
-- `db_url`: The PostgreSQL database connection URL.
-- `current_user`: The username currently logged in.
+  - `db_url`: The PostgreSQL database connection URL.
+  - `current_user`: The username currently logged in.
 
 - Example `.gatorconfig.json` content:
 
-{
-"db_url": "postgres://user:pass@localhost:5432/gator_rss?sslmode=disable",
-"current_user": "alice"
-}
-text
+  ```json
+  {
+    "db_url": "postgres://user:pass@localhost:5432/gator?sslmode=disable",
+    "current_user": "alice"
+  }
+  ```
 
 - The config file is created and updated automatically by the application when you log in or register.
 
@@ -82,55 +92,69 @@ All commands are invoked through the CLI.
 
 ### Register a new user
 
+```bash
 gator-rss register alice
-text
+```
 
 ### Login
 
+```bash
 gator-rss login alice
-text
+```
 
 *Sets the current user in the `.gatorconfig.json` config file.*
 
 ### Add a new feed
 
+```bash
 gator-rss addfeed "Go Blog" https://blog.golang.org/feed.atom
-text
+```
 
 ### Follow a feed
 
+```bash
 gator-rss follow https://blog.golang.org/feed.atom
-text
+```
 
 ### List followed feeds
 
+```bash
 gator-rss following
-text
+```
 
 ### Unfollow a feed
 
+```bash
 gator-rss unfollow https://blog.golang.org/feed.atom
-text
+```
 
 ### Aggregate feeds
 
-gator-rss agg <time_between_request>
-text
+```bash
+gator-rss agg 
+```
 
 *Fetches new posts from followed feeds and stores them in the `posts` table.*  
-*The `<time_between_request>` argument specifies how long to wait between fetching each feed (e.g., `1m` for 1 minute, `1s` for 1 second, `1h` for 1 hour). This helps avoid overwhelming the feed servers.*
+*The `` argument specifies how long to wait between fetching each feed (e.g., `1m` for 1 minute, `1s` for 1 second, `1h` for 1 hour). This helps avoid overwhelming the feed servers.*
 
 ### Browse posts
 
+```bash
 gator-rss browse 10
-text
+```
 
 *Shows up to 10 recent posts from feeds the current user is following.*
 
 ## Development
 
-- Migrations: `goose -dir db/migrations postgres "$DB_URL" up`
-- Database models and queries: `sqlc generate`
+- Migrations:  
+  ```bash
+  goose -dir sql/schema postgres "$DB_URL" up
+  ```
+- Database models and queries:  
+  ```bash
+  sqlc generate
+  ```
 - Config package manages the `.gatorconfig.json` file located in the user’s home directory.
 
 ## Design Notes
