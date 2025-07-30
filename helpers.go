@@ -2,13 +2,18 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
+	"html"
+	"log"
 	"os"
 	"time"
 
 	"github.com/Sheikh-Fahad-Ahmed/gator-rss/internal/database"
+	"github.com/Sheikh-Fahad-Ahmed/gator-rss/internal/rss/api"
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
 
 func helperCreateUser(s *state, cmd command) error {
@@ -105,4 +110,38 @@ func helperDeleteFeedFollow(s *state, cmd command, user database.User) error {
 	
 	err = s.db.DeleteFeedFollow(context.Background(), params)
 	return err
+}
+
+func helperCreatePost(s *state, feedId uuid.UUID, post *api.RSSItem) (*database.Post, error) {
+	description := sql.NullString{
+		String: html.UnescapeString(post.Description),
+		Valid: post.Description != "",
+	}
+	layout := time.RFC1123
+
+	publishedAt, err := time.Parse(layout, post.PubDate)
+	if err != nil {
+		log.Println("unable to parse published_at time")
+		return nil, err
+	}
+
+	params := database.CreatePostParams{
+		ID: uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		Title: html.UnescapeString(post.Title),
+		Url: post.Link,
+		Description: description,
+		PublishedAt: publishedAt,
+		FeedID: feedId,
+	}
+	resp, err := s.db.CreatePost(context.Background(),params)
+	if err != nil {
+		if pqErr, ok := err.(*pq.Error); ok && pqErr.Code == "23505"{
+			return nil, nil
+		}
+		log.Println("error creating a post:", err)
+		return nil, err
+	}
+	return &resp, nil
 }
