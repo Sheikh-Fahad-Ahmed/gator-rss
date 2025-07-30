@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/Sheikh-Fahad-Ahmed/gator-rss/internal/database"
@@ -190,6 +191,33 @@ func handlerUnfollow(s *state, cmd command, user database.User) error {
 	}
 	return nil
 
+}
+
+func handlerBrowse(s *state, cmd command, user database.User) error {
+	if len(cmd.arguments) == 0 {
+		cmd.arguments = append(cmd.arguments, "2")
+	}
+
+	limit, err := strconv.Atoi(cmd.arguments[0])
+	if err != nil {
+		return err
+	}
+
+	params := database.GetPostsForUserParams{
+		UserID: user.ID,
+		Limit: int32(limit),
+	}
+	posts, err := s.db.GetPostsForUser(context.Background(),params)
+	if err != nil {
+		return err
+	}
+
+	for i, post := range posts {
+		fmt.Printf("\n%d. title: %s\n  link:%s\n  Description:%s", (i+1), post.Title, post.Url, post.Description.String)
+		fmt.Printf("\n----------------------------------------------------------\n")
+	}
+	
+	return nil
 }
 
 func (c *commands) run(s *state, cmd command) error {
