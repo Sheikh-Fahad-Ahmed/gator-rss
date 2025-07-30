@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
+
 
 	"github.com/Sheikh-Fahad-Ahmed/gator-rss/internal/rss/api"
 )
@@ -14,7 +14,7 @@ func FetchAndProcessFeeds(s *state) error {
 	if err != nil {
 		return err
 	}
-	log.Println("Found a feed to fetch.")
+	log.Printf("\nfound a feed to fetch: %s", feed.Name)
 	if err = s.db.MarkFeedFetched(context.Background(), feed.ID); err != nil {
 		return err
 	}
@@ -24,8 +24,11 @@ func FetchAndProcessFeeds(s *state) error {
 		return err
 	}
 
-	for i, item := range feedInfo.Channel.Item {
-		fmt.Printf("\n%d. %s",(i + 1), item.Title)
+	for _, item := range feedInfo.Channel.Item {
+		_, err := helperCreatePost(s, feed.ID, &item)
+		if err != nil {
+			return err
+		}
 	}
 	log.Printf("\n feed %s collected and %d posts found.", feed.Name, len(feedInfo.Channel.Item))
 	return nil
